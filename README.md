@@ -29,4 +29,4 @@ The overall workflow is as follows:
 * A typical result should look like this:
     ![](./result.jpg)
     ^This image shows a classifier with 1000 Haar features.
->>>>>>> dev
+
