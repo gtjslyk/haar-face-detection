@@ -49,15 +49,11 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=1, type=float)
     parser.add_argument('--only_genfile', default=None, type=int)
     parser.add_argument('--from_genedfile')
+    parser.add_argument('--prepare_data')
     
 
 
-    # check existance of traing data
-    if not os.path.exists('./data/pos_data_normalized.pkl'):
-        print('traing data required, generating...')
-        generate_positive('./data/pos_data_normalized.pkl')
-        load_negatives_from_dir(dir='none_face', output_file='./data/negative_list.pkl')
-
+    
 
     args = parser.parse_args()
     stage = args.stage
@@ -74,6 +70,16 @@ if __name__ == "__main__":
     error_type = args.error_type
     beta = args.beta
     only_genfile = args.only_genfile
+    prepare_data = args.prepare_data
+
+    # check existance of traing data
+    if not os.path.exists('./data/pos_data_normalized.pkl'):
+        print('traing data required, generating...')
+        generate_positive('./data/pos_data_normalized.pkl')
+        load_negatives_from_dir(dir='none_face', output_file='./data/negative_list.pkl')
+    if prepare_data is not None:
+        exit(0)
+
 
     # positive data 
     X_pos, y_pos = utils.data_loader.load_dataset(os.path.join('data', 'pos_data_normalized.pkl'))

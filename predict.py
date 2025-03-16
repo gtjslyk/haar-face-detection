@@ -1,5 +1,5 @@
 import cv2
-from cascade_classifier import *
+from utils.cascade_classifier import *
 import random
 
 
