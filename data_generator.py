@@ -9,8 +9,8 @@ Description: generator of negative data. run load_from_dir to load pictures from
 import cv2, os, random, pickle
 import numpy as np
 import data_loader
-
 from tqdm import tqdm
+from sklearn.datasets import fetch_lfw_people
 
 i = 0
 def normalize(imgs: np.ndarray):
@@ -49,7 +49,7 @@ def random_crop_and_resize(img, crop_size, target_size):
     return resized_img
 
 
-def load_negatives_from_dir(dir='none_face', output_file='negative_list.pkl', num = None):
+def load_negatives_from_dir(dir='none_face', output_file='./data/negative_list.pkl', num = None):
     """load images from dir, convert them into gray and dump them into files for further use"""
     img_list = []
     for p, dl, fl in os.walk(dir):
@@ -65,8 +65,11 @@ def load_negatives_from_dir(dir='none_face', output_file='negative_list.pkl', nu
     return img_list
     
 
-def generate_negative(img_list, num=10000):
-    """read images from pickle file, normalize them and generate negative dataset and save it into pickle file"""
+def generate_negative(num=10000, pickle_file = './data/negative_list.pkl'):
+    """read images from input file, randomly cropand  normalize them then return negative dataset"""
+    with open(pickle_file, 'rb') as f:
+        img_list = pickle.load(f)
+        f.close()
     data_list = []
     for i in range(num):
         img = random.choice(img_list)
@@ -89,5 +92,33 @@ def generate_normalized_dataset(input_pickle, output_pickle):
     return 
 
 
+
+def generate_positive(output_path):
+    # download LFW
+    lfw_people = fetch_lfw_people(funneled=False, slice_=(slice(70, 195), slice(78 - 1, 172 + 1)), resize=1, download_if_missing=False)
+
+
+
+    data = lfw_people.images
+    shape = data.shape
+    # crop
+    w = min(shape[1], shape[2])
+    data = data[:, int((shape[1] - w) / 2) : w + int((shape[1] - w) / 2), int((shape[2] - w) / 2) : w + int((shape[2] - w) / 2)]
+    data = np.array([cv2.resize(d, (24, 24)) for d in data])
+    # normalize
+    data = normalize(data)
+    # add flipped copy
+    data_fliped = data[:, :, ::-1]
+    data = np.concatenate((data, data_fliped), axis=0)
+
+    # dump dataset
+    X = data
+    y = np.ones((X.shape[0]))
+    print(X.shape, y.shape)
+    data_loader.dump_dataset(output_path, X, y)
+
+
+
 if __name__ == "__main__":
-    generate_normalized_dataset('./data/all_pos_data_uint8.pkl', './data/pos_data_normalized.pkl')
+    generate_positive('./data/pos_data_normalized.pkl')
+    load_negatives_from_dir()

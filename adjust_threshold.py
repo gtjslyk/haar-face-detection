@@ -121,8 +121,9 @@ if __name__ == "__main__":
             pass
         else:
             try:
-                n = eval(ipt)
+                n = float(eval(ipt))
             except:
+                print('invalid input')
                 continue
         for clsfr, scale in zip(c.classifier_list[0].classifiers, fvalue_scales):
             clsfr['threshold'] -= clsfr['polarity'] * n * scale * clsfr['alpha']

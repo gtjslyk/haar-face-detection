@@ -1,5 +1,5 @@
 
-import neg_generator
+import data_generator
 import cv2
 import multiprocessing
 from cascade_classifier import *
@@ -7,9 +7,9 @@ import argparse
 
 
 
-def blocked_get_false_true_samples(ret_list, total_neg_num, stage, c, img_list):
+def blocked_get_false_true_samples(ret_list, total_neg_num, stage, c):
     for i in range(stage):
-        X_neg, y_neg = neg_generator.generate_negative(img_list, num = 1000)
+        X_neg, y_neg = data_generator.generate_negative(num = stage * 4000)
         if stage == 1:
             X_neg_next = X_neg
             ret_list.append(X_neg_next)
@@ -20,11 +20,7 @@ def blocked_get_false_true_samples(ret_list, total_neg_num, stage, c, img_list):
             total_neg_num.value += 1000
     return
 
-stage = 1
-neg_N = 10000
-pos_N = 10000
 window_N = 24
-train_val_ratio = 0.8
 
 
 if __name__ == "__main__":
@@ -39,8 +35,8 @@ if __name__ == "__main__":
         help='a short view before generating dataset')  
     parser.add_argument('--min_accuracy', default=0.7, type=float)
     parser.add_argument('--max_fn_rate', default=0.005, type=float)
-    parser.add_argument('--positive_weights_factor', default=5, type=float)
-    parser.add_argument('--fn_weights_factor', default=2, type=float)
+    parser.add_argument('--positive_weights_factor', default=1, type=float)
+    parser.add_argument('--fn_weights_factor', default=0, type=float)
     parser.add_argument('--N', default=12, type=int)
     parser.add_argument('--T', default=1, type=int)
     parser.add_argument('--posN', default=4000, type=int)
@@ -51,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('--error_type', default='accuracy', type=str)
     parser.add_argument('--beta', default=1, type=float)
     parser.add_argument('--only_genfile', default=None, type=int)
-    parser.add_argument('--from_genedfile', default=None, type=bool)
+    parser.add_argument('--from_genedfile')
     
 
     args = parser.parse_args()
@@ -92,9 +88,7 @@ if __name__ == "__main__":
     total_neg_num = multiprocessing.Value('i', 0)  # sharing progress
 
     
-    with open('data/negative_list.pkl', 'rb') as f:
-        img_list = pickle.load(f)
-        f.close()
+    
 
     if args.from_genedfile:
         root, ds, fs = os.walk('file_gen').__next__()
@@ -111,13 +105,13 @@ if __name__ == "__main__":
     if args.data_from_file == False:
         while True:
             processes = []
-            for i in range(1):
-                process = multiprocessing.Process(target=blocked_get_false_true_samples, args = (ret_list, total_neg_num, stage, c, img_list))
+            for i in range(N):
+                process = multiprocessing.Process(target=blocked_get_false_true_samples, args = (ret_list, total_neg_num, stage, c))
                 processes.append(process)
                 process.start() 
             while any(p.is_alive() for p in processes):
                 i+=1
-                time.sleep(0.01)
+                time.sleep(0.5)
             
             for process in processes:
                 process.join()

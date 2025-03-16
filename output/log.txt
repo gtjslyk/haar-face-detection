@@ -1,6 +1,0 @@
-Tue Oct 15 14:17:28 2024: stage_1--iter: 0, train: acc: 0.92488, fnr: 0.09187 tnr: 0.93604
-Tue Oct 15 14:17:28 2024: stage_1--iter: 0,   val: acc: 0.92250, fnr: 0.08750 tnr: 0.92917
-Tue Oct 15 14:18:55 2024: stage_1--iter: 0, train: acc: 0.81063, fnr: 0.01250 tnr: 0.69271
-Tue Oct 15 14:18:55 2024: stage_1--iter: 0,   val: acc: 0.82250, fnr: 0.01375 tnr: 0.71333
-Sat Mar 15 18:15:32 2025: stage_1--iter: 0, train: acc: 0.81563, fnr: 0.01500 tnr: 0.70271
-Sat Mar 15 18:15:32 2025: stage_1--iter: 0,   val: acc: 0.80650, fnr: 0.01875 tnr: 0.69000
