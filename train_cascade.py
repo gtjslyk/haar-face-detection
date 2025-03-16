@@ -1,15 +1,16 @@
 
-import data_generator
+import utils.data_generator
 import cv2
 import multiprocessing
-from cascade_classifier import *
+from utils.cascade_classifier import *
+from utils.data_generator import *
 import argparse
 
 
 
 def blocked_get_false_true_samples(ret_list, total_neg_num, stage, c):
     for i in range(stage):
-        X_neg, y_neg = data_generator.generate_negative(num = stage * 4000)
+        X_neg, y_neg = utils.data_generator.generate_negative(num = stage * 4000)
         if stage == 1:
             X_neg_next = X_neg
             ret_list.append(X_neg_next)
@@ -50,6 +51,14 @@ if __name__ == "__main__":
     parser.add_argument('--from_genedfile')
     
 
+
+    # check existance of traing data
+    if not os.path.exists('./data/pos_data_normalized.pkl'):
+        print('traing data required, generating...')
+        generate_positive('./data/pos_data_normalized.pkl')
+        load_negatives_from_dir(dir='none_face', output_file='./data/negative_list.pkl')
+
+
     args = parser.parse_args()
     stage = args.stage
     view = args.view
@@ -67,7 +76,7 @@ if __name__ == "__main__":
     only_genfile = args.only_genfile
 
     # positive data 
-    X_pos, y_pos = data_loader.load_dataset(os.path.join('data', 'pos_data_normalized.pkl'))
+    X_pos, y_pos = utils.data_loader.load_dataset(os.path.join('data', 'pos_data_normalized.pkl'))
     X_pos, y_pos = X_pos[:pos_N], y_pos[:pos_N]
     pivot = int(train_val_ratio * y_pos.shape[0])
     X_train_pos, y_train_pos = X_pos[:pivot], y_pos[:pivot]
@@ -87,7 +96,6 @@ if __name__ == "__main__":
     ret_list = manager.list()
     total_neg_num = multiprocessing.Value('i', 0)  # sharing progress
 
-    
     
 
     if args.from_genedfile:
@@ -144,18 +152,18 @@ if __name__ == "__main__":
         X_val_neg, y_val_neg = X_neg_next[pivot:], y_neg_next[pivot:]
 
 
-        X_train, y_train = data_loader.merge_dataset(X_train_pos, y_train_pos, X_train_neg, y_train_neg)
-        X_val, y_val = data_loader.merge_dataset(X_val_pos, y_val_pos, X_val_neg, y_val_neg)
+        X_train, y_train = utils.data_loader.merge_dataset(X_train_pos, y_train_pos, X_train_neg, y_train_neg)
+        X_val, y_val = utils.data_loader.merge_dataset(X_val_pos, y_val_pos, X_val_neg, y_val_neg)
         if only_genfile is not None:
             assert type(only_genfile) == int
             if not os.path.exists('./file_gen'):
                 os.mkdir('./file_gen')
-            data_loader.dump_dataset(os.path.join('./file_gen', f'training_data_s{stage}_{only_genfile}.pkl'), X_train, y_train)
-            data_loader.dump_dataset(os.path.join('./file_gen', f'validating_data_s{stage}_{only_genfile}.pkl'), X_val, y_val)
+            utils.data_loader.dump_dataset(os.path.join('./file_gen', f'training_data_s{stage}_{only_genfile}.pkl'), X_train, y_train)
+            utils.data_loader.dump_dataset(os.path.join('./file_gen', f'validating_data_s{stage}_{only_genfile}.pkl'), X_val, y_val)
             exit()
     else:
-        X_train, y_train = data_loader.load_dataset(os.path.join('training_data', f'training_data_s{stage}.pkl'))
-        X_val, y_val = data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
+        X_train, y_train = utils.data_loader.load_dataset(os.path.join('training_data', f'training_data_s{stage}.pkl'))
+        X_val, y_val = utils.data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
 
 
     if view is True:
@@ -183,8 +191,8 @@ if __name__ == "__main__":
                 exit()
         cv2.destroyAllWindows()
 
-    data_loader.dump_dataset(os.path.join('training_data', f'training_data_s{stage}.pkl'), X_train, y_train)
-    data_loader.dump_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'), X_val, y_val)
+    utils.data_loader.dump_dataset(os.path.join('training_data', f'training_data_s{stage}.pkl'), X_train, y_train)
+    utils.data_loader.dump_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'), X_val, y_val)
 
 
     classifier = adaboost_classifier(f'stage_{stage}')

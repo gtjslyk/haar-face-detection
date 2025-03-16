@@ -1,5 +1,5 @@
-from adaboost_classifier import *
-import data_loader
+from utils.adaboost_classifier import *
+import utils.data_loader as data_loader
 
 
 class cascade_classifier:

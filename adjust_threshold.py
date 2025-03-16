@@ -1,6 +1,6 @@
-from cascade_classifier import *
-from adaboost_classifier import *
-import data_loader
+from utils.cascade_classifier import *
+from utils.adaboost_classifier import *
+import utils.data_loader
 import argparse
 import os
 from sklearn.metrics import precision_score, recall_score, accuracy_score
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     stage = args.stage
 
-    X_train, y_train = data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
-    X_val, y_val = data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
+    X_train, y_train = utils.data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
+    X_val, y_val = utils.data_loader.load_dataset(os.path.join('training_data', f'validating_data_s{stage}.pkl'))
 
 
     c = cascade_classifier()

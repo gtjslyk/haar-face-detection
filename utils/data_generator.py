@@ -8,7 +8,7 @@ Description: generator of negative data. run load_from_dir to load pictures from
 """
 import cv2, os, random, pickle
 import numpy as np
-import data_loader
+import utils.data_loader as data_loader
 from tqdm import tqdm
 from sklearn.datasets import fetch_lfw_people
 
